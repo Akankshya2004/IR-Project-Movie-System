@@ -1,0 +1,26 @@
+# Core web framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Scraping libraries
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Solr client
+pysolr==3.9.0
+
+# Data processing
+python-dateutil==2.8.2
+pandas==2.2.0
+tqdm==4.66.1
+
+# Optional: for better HTTP handling
+urllib3==2.1.0
+
+# Development and testing
+pytest==7.4.3
+black==23.12.1
+
+# Environment variables
+python-dotenv==1.0.1

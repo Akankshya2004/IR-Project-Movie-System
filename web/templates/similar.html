@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Similar to {{ source_movie.title }}{% endblock %}
+
+{% block content %}
+<div class="similar-page">
+    <div class="source-movie-section">
+        <h1>Movies Similar to:</h1>
+        
+        <div class="source-movie-card">
+            <h2>{{ source_movie.title }}
+                {% if source_movie.year %}
+                <span class="movie-year">({{ source_movie.year }})</span>
+                {% endif %}
+            </h2>
+            
+            {% if source_movie.rating %}
+            <div class="movie-rating">
+                ⭐ {{ "%.1f"|format(source_movie.rating) }}/10
+            </div>
+            {% endif %}
+            
+            {% if source_movie.genres %}
+            <div class="movie-genres">
+                {% for genre in source_movie.genres %}
+                <span class="genre-tag">{{ genre }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if source_movie.plot %}
+            <p class="movie-plot">{{ source_movie.plot }}</p>
+            {% endif %}
+            
+            {% if source_movie.directors %}
+            <p><strong>Director:</strong> {{ source_movie.directors | join_with_comma }}</p>
+            {% endif %}
+            
+            {% if source_movie.cast %}
+            <p><strong>Cast:</strong> {{ source_movie.cast[:5] | join_with_comma }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="similar-results-section">
+        <h2>🎯 Similar Movies ({{ num_similar }} found)</h2>
+        
+        {% if similar_movies %}
+        <p class="similarity-note">
+            Based on plot similarity, shared genres, and common cast/crew
+        </p>
+        
+        <div class="results-list">
+            {% for movie in similar_movies %}
+            <div class="movie-card">
+                <div class="movie-header">
+                    <h3 class="movie-title">
+                        {{ movie.title }}
+                        {% if movie.year %}
+                        <span class="movie-year">({{ movie.year }})</span>
+                        {% endif %}
+                    </h3>
+                    {% if movie.rating %}
+                    <div class="movie-rating">
+                        ⭐ {{ "%.1f"|format(movie.rating) }}/10
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="movie-meta">
+                    {% if movie.genres %}
+                    <div class="movie-genres">
+                        {% for genre in movie.genres[:5] %}
+                        <span class="genre-tag">{{ genre }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if movie.directors %}
+                    <p class="movie-directors">
+                        <strong>Director:</strong> {{ movie.directors | join_with_comma }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if movie.cast %}
+                    <p class="movie-cast">
+                        <strong>Cast:</strong> {{ movie.cast[:5] | join_with_comma }}
+                    </p>
+                    {% endif %}
+                </div>
+                
+                {% if movie.plot %}
+                <p class="movie-plot">{{ movie.plot[:300] }}{% if movie.plot|length > 300 %}...{% endif %}</p>
+                {% endif %}
+                
+                <div class="movie-actions">
+                    <a href="{{ movie.url }}" target="_blank" class="btn-secondary">
+                        View on {{ movie.site | capitalize }}
+                    </a>
+                    <a href="{{ url_for('similar_movies', doc_id=movie.id) }}" class="btn-primary">
+                        🔍 Find More Like This
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+            <p>No similar movies found. Try searching for movies in the same genre or with the same director.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="back-link">
+        <a href="javascript:history.back()" class="btn-secondary">← Back to Search Results</a>
+    </div>
+</div>
+{% endblock %}

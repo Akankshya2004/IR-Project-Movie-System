@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Movie Search{% endblock %} - IR System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        function handleMissingImage(img) {
+            // Array of placeholder colors
+            const colors = ['e0e0e0', 'cbd5e1', '94a3b8', '64748b', '475569'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Prevent infinite loop if placeholder fails
+            img.onerror = null;
+            
+            // Set new source with random background color
+            img.src = `https://via.placeholder.com/300x450/${randomColor}/ffffff?text=No+Poster`;
+        }
+    </script>
+</head>
+<body>
+    {% if request.endpoint == 'index' %}
+    <div class="movie-strip-bg">
+        <!-- Column 1 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BMzg3ZDMxMzUtNTQyNi00MzdiLTg5ZmUtZmJkODcwN2Y1NGMyXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTc1NTY3NDIzNl5BMl5BanBnXkFtZTgwNTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNmVhY2U4Y2QtYTg1ZC00OWZkLWI0OTgtZTkwZmY5Y2ZlMjUxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNTM0MjdkZTAtZGMzNi00MTU0LTg3MGYtNmRjMmVkMTY4OGMzXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BMzg3ZDMxMzUtNTQyNi00MzdiLTg5ZmUtZmJkODcwN2Y1NGMyXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTc1NTY3NDIzNl5BMl5BanBnXkFtZTgwNTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNmVhY2U4Y2QtYTg1ZC00OWZkLWI0OTgtZTkwZmY5Y2ZlMjUxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNTM0MjdkZTAtZGMzNi00MTU0LTg3MGYtNmRjMmVkMTY4OGMzXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 2 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BNzNhY2VmYTctODhhZC00M2U1LTk4MTktMmFmNmJhY2Y1YzgxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BYjYzZGQwMGUtZDkyMC00ODUwLTljYzMtOGQ3Njc1M2VlZThjXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTQ5MTQxMzkxNV5BMl5BanBnXkFtZTgwNTc4MjIyMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjI5OTI3NTQ4NV5BMl5BanBnXkFtZTgwNDY3NTAwMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BNzNhY2VmYTctODhhZC00M2U1LTk4MTktMmFmNmJhY2Y1YzgxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BYjYzZGQwMGUtZDkyMC00ODUwLTljYzMtOGQ3Njc1M2VlZThjXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTQ5MTQxMzkxNV5BMl5BanBnXkFtZTgwNTc4MjIyMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjI5OTI3NTQ4NV5BMl5BanBnXkFtZTgwNDY3NTAwMjE@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 3 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BNjkxMzY1NTQtN2YwOS00NmIwLTlkNTMtMjNkMzk1ZTk3ZDU2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNGVmY2EyZTktYzUwMy00YTU1LWJhZDYtNjIwYTFhMTZhOTVhXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BOGQ4NjhkMDktOTJhMC00ZTk0LTliYzEtOTAyZDcxMmZlMTE4XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMDM1ZmM5NWUtYmNlNy00ODcyLWFmNDQtMWI0Y2NmOGI4YzQ2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BNjkxMzY1NTQtN2YwOS00NmIwLTlkNTMtMjNkMzk1ZTk3ZDU2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNGVmY2EyZTktYzUwMy00YTU1LWJhZDYtNjIwYTFhMTZhOTVhXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BOGQ4NjhkMDktOTJhMC00ZTk0LTliYzEtOTAyZDcxMmZlMTE4XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMDM1ZmM5NWUtYmNlNy00ODcyLWFmNDQtMWI0Y2NmOGI4YzQ2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 4 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BM2FkMGNhOGUtMjE4OC00MzFlLTgxNmYtZGU0YjQ3YzMzMGM2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjEwMzgzMTEtYzI3ZS00M2M4LWJjZGYtY2UxZjgzNzNjNjc0XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTg4Njk3MjU5Ml5BMl5BanBnXkFtZTgwOTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNDg1OTI1M2MtMTVlMS00ZjFhLTgyMTAtYjIzOWUwZTkyZWE5XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BM2FkMGNhOGUtMjE4OC00MzFlLTgxNmYtZGU0YjQ3YzMzMGM2XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjEwMzgzMTEtYzI3ZS00M2M4LWJjZGYtY2UxZjgzNzNjNjc0XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTg4Njk3MjU5Ml5BMl5BanBnXkFtZTgwOTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNDg1OTI1M2MtMTVlMS00ZjFhLTgyMTAtYjIzOWUwZTkyZWE5XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 5 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BOTkwM2Y1MGQtZGUxYy00ZTJlLWJjMDQtMzM1YmRmNTMzZTY1XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNDY2MjRmZWQtZTRmYS00YjA2LTg0ZTgtYzBjODJiNTFkMTc4XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BOGMyN2U5OWEtNTlmYi00YzUyLWJlYmQtZTc0YTY5OTU5MTEwXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjkyOTg2MzE1MV5BMl5BanBnXkFtZTgwMDUzODYwMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BOTkwM2Y1MGQtZGUxYy00ZTJlLWJjMDQtMzM1YmRmNTMzZTY1XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNDY2MjRmZWQtZTRmYS00YjA2LTg0ZTgtYzBjODJiNTFkMTc4XkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BOGMyN2U5OWEtNTlmYi00YzUyLWJlYmQtZTc0YTY5OTU5MTEwXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjkyOTg2MzE1MV5BMl5BanBnXkFtZTgwMDUzODYwMjE@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 6 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BMjI3OTEzODA4NF5BMl5BanBnXkFtZTgwODc0NDIwMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMzg3ZDMxMzUtNTQyNi00MzdiLTg5ZmUtZmJkODcwN2Y1NGMyXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTc1NTY3NDIzNl5BMl5BanBnXkFtZTgwNTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNmVhY2U4Y2QtYTg1ZC00OWZkLWI0OTgtZTkwZmY5Y2ZlMjUxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BMjI3OTEzODA4NF5BMl5BanBnXkFtZTgwODc0NDIwMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMzg3ZDMxMzUtNTQyNi00MzdiLTg5ZmUtZmJkODcwN2Y1NGMyXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTc1NTY3NDIzNl5BMl5BanBnXkFtZTgwNTIyODg5MTE@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNmVhY2U4Y2QtYTg1ZC00OWZkLWI0OTgtZTkwZmY5Y2ZlMjUxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+
+        <!-- Column 7 -->
+        <div class="strip-col">
+            <img src="https://m.media-amazon.com/images/M/MV5BNTM0MjdkZTAtZGMzNi00MTU0LTg3MGYtNmRjMmVkMTY4OGMzXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNzNhY2VmYTctODhhZC00M2U1LTk4MTktMmFmNmJhY2Y1YzgxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BYjYzZGQwMGUtZDkyMC00ODUwLTljYzMtOGQ3Njc1M2VlZThjXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTQ5MTQxMzkxNV5BMl5BanBnXkFtZTgwNTc4MjIyMjE@._V1_SX300.jpg" alt="Movie Poster">
+            <!-- Duplicate -->
+            <img src="https://m.media-amazon.com/images/M/MV5BNTM0MjdkZTAtZGMzNi00MTU0LTg3MGYtNmRjMmVkMTY4OGMzXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BNzNhY2VmYTctODhhZC00M2U1LTk4MTktMmFmNmJhY2Y1YzgxXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BYjYzZGQwMGUtZDkyMC00ODUwLTljYzMtOGQ3Njc1M2VlZThjXkEyXkFqcGc@._V1_SX300.jpg" alt="Movie Poster">
+            <img src="https://m.media-amazon.com/images/M/MV5BMTQ5MTQxMzkxNV5BMl5BanBnXkFtZTgwNTc4MjIyMjE@._V1_SX300.jpg" alt="Movie Poster">
+        </div>
+    </div>
+    {% endif %}
+    <header>
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div class="nav-left">
+                    <a href="{{ url_for('index') }}" class="logo">
+                        🎬 Movie IR System
+                    </a>
+                </div>
+                <div class="nav-right">
+                    <div class="nav-links">
+                        <a href="{{ url_for('index') }}">Home</a>
+                        <a href="{{ url_for('search') }}">Browse All</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Movie Information Retrieval System - University IR Project</p>
+            <p>Data sources: IMDb, Rotten Tomatoes, Letterboxd</p>
+            <p>Powered by Apache Solr</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

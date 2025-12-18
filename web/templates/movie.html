@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }} - Movie Details{% endblock %}
+
+{% block content %}
+<div class="container movie-detail-page">
+    <div class="movie-hero">
+                <div class="movie-poster-large">
+            {% if movie.poster and movie.poster != 'N/A' %}
+            <img src="{{ movie.poster }}" alt="{{ movie.title }} Poster" onerror="handleMissingImage(this)">
+            {% else %}
+            <div class="no-poster-placeholder">
+                <span>No Poster</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="movie-info-main">
+            <h1 class="detail-title">{{ movie.title }} <span class="detail-year">({{ movie.year }})</span></h1>
+            
+            <div class="detail-meta-row">
+                {% if movie.rating %}
+                <div class="detail-rating">
+                    ⭐ {{ "%.1f"|format(movie.rating) }}/10
+                </div>
+                {% endif %}
+
+                {% if movie.tomatometer %}
+                <div class="detail-rating" style="margin-left: 15px;">
+                    🍅 {{ movie.tomatometer }}%
+                </div>
+                {% endif %}
+                
+                {% if movie.genres %}
+                <div class="detail-genres">
+                    {% for genre in movie.genres %}
+                    <span class="genre-tag">{{ genre }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if movie.directors %}
+            <p class="detail-people"><strong>Director:</strong> {{ movie.directors | join_with_comma }}</p>
+            {% endif %}
+            
+            {% if movie.cast %}
+            <p class="detail-people"><strong>Cast:</strong> {{ movie.cast | join_with_comma }}</p>
+            {% endif %}
+            
+            {% if movie.plot %}
+            <div class="detail-plot">
+                <h3>Plot</h3>
+                <p>{{ movie.plot }}</p>
+            </div>
+            {% endif %}
+
+            <div class="detail-actions">
+                <a href="{{ url_for('search') }}" class="btn-secondary">← Back to Search</a>
+                {% if movie.url %}
+                <a href="{{ movie.url }}" target="_blank" class="btn-primary">View on {{ movie.site | default('Source') | capitalize }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if movie.reviews %}
+    <div class="movie-reviews-section">
+        <h2>Reviews</h2>
+        <div class="reviews-list">
+            {% if movie.reviews is string %}
+                <div class="review-card">
+                    <p>{{ movie.reviews }}</p>
+                </div>
+            {% else %}
+                {% for review in movie.reviews %}
+                <div class="review-card">
+                    <p>{{ review }}</p>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if similar_movies %}
+    <div class="similar-movies-section">
+        <h2>Similar Movies</h2>
+        <div class="similar-grid">
+            {% for sim in similar_movies %}
+            <a href="{{ url_for('movie_detail', movie_id=sim.id) }}" class="similar-card">
+                <div class="similar-poster">
+                    {% if sim.poster and sim.poster != 'N/A' %}
+                    <img src="{{ sim.poster }}" alt="{{ sim.title }}" loading="lazy" onerror="handleMissingImage(this)">
+                    {% else %}
+                    <div class="no-poster-small">No Poster</div>
+                    {% endif %}
+                </div>
+                <div class="similar-info">
+                    <h4>{{ sim.title }}</h4>
+                    {% if sim.year %}<span>({{ sim.year }})</span>{% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="similar-movies-section">
+        <h2>Similar Movies</h2>
+        <p>No similar movies found.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .movie-detail-page {
+        padding: 2rem 0;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .movie-hero {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+    
+    .movie-poster-large img {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .detail-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+    
+    .detail-year {
+        color: var(--text-muted);
+        font-weight: normal;
+    }
+    
+    .detail-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .detail-rating {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #f5c518;
+    }
+    
+    .detail-people {
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .detail-plot {
+        margin-top: 2rem;
+        line-height: 1.6;
+    }
+    
+    .detail-plot h3 {
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+    
+    .detail-actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .movie-reviews-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .review-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    .similar-movies-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .similar-card {
+        text-decoration: none;
+        color: inherit;
+        background: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.2s;
+        border: 1px solid var(--border-color);
+    }
+    
+    .similar-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .similar-poster {
+        aspect-ratio: 2/3;
+        background: #eee;
+    }
+    
+    .similar-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .similar-info {
+        padding: 0.8rem;
+    }
+    
+    .similar-info h4 {
+        margin: 0;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .similar-info span {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+        .movie-hero {
+            grid-template-columns: 1fr;
+        }
+        .movie-poster-large {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+    }
+</style>
+{% endblock %}

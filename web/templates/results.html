@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<style>
+    /* Fixed layout for results page to prevent overlap and enable scrolling results only */
+    body {
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    header {
+        flex-shrink: 0;
+    }
+
+    main.container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-top: 0 !important;
+        padding-top: 1rem;
+        min-height: 0;
+    }
+
+    .results-header {
+        position: static !important;
+        flex-shrink: 0;
+        background: var(--bg-color);
+        z-index: 10;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .search-page-layout {
+        flex: 1;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+        padding-bottom: 1rem;
+        min-height: 0;
+    }
+
+    .sidebar {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 5px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+
+    .main-results {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+    
+    .sidebar::-webkit-scrollbar,
+    .main-results::-webkit-scrollbar {
+        width: 8px;
+    }
+    .sidebar::-webkit-scrollbar-track,
+    .main-results::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 4px;
+    }
+    
+    footer {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            height: auto;
+            overflow-y: auto;
+            display: block;
+        }
+        
+        main.container {
+            height: auto;
+            overflow: visible;
+            display: block;
+            padding-bottom: 2rem;
+        }
+        
+        .search-page-layout {
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            overflow: visible;
+        }
+        
+        .sidebar {
+            height: auto;
+            overflow: visible;
+            margin-bottom: 2rem;
+            padding-right: 0;
+        }
+        
+        .main-results {
+            height: auto;
+            overflow: visible;
+            padding-right: 0;
+        }
+    }
+</style>
+<div class="results-header">
+    <div class="search-bar-container">
+        <form action="{{ url_for('search') }}" method="get" class="results-search-form">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ query if query != '*:*' else '' }}"
+                placeholder="Search movies..." 
+                class="results-search-input"
+            >
+            <button type="submit" class="results-search-button">🔍</button>
+        </form>
+    </div>
+    <div class="results-info">
+        <h1>Search Results</h1>
+        <p class="results-count">Found <strong>{{ total_results }}</strong> movies</p>
+    </div>
+</div>
+
+<div class="search-page-layout">
+    <!-- Sidebar with facets -->
+    <aside class="sidebar">
+        <form action="{{ url_for('search') }}" method="get" id="filter-form">
+            <input type="hidden" name="q" value="{{ query }}">
+            
+            <div class="sidebar-section">
+                <h3>Filters</h3>
+                
+                <!-- Genre facets -->
+                {% if facets.genres %}
+                <div class="facet-group">
+                    <h4>Genres</h4>
+                    {% for genre in facets.genres[:15] %}
+                    <label class="facet-item">
+                        <input 
+                            type="checkbox" 
+                            name="genres" 
+                            value="{{ genre.value }}"
+                            {% if genre.value in selected_genres %}checked{% endif %}
+                            onchange="document.getElementById('filter-form').submit()"
+                        >
+                        <span>{{ genre.value }}</span>
+                        <span class="facet-count">{{ genre.count }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Year range -->
+                <div class="facet-group">
+                    <h4>Year</h4>
+                    <input 
+                        type="number" 
+                        name="year_min" 
+                        placeholder="Min year"
+                        value="{{ year_min }}"
+                        min="1900" 
+                        max="2024"
+                        class="filter-input"
+                    >
+                    <input 
+                        type="number" 
+                        name="year_max" 
+                        placeholder="Max year"
+                        value="{{ year_max }}"
+                        min="1900" 
+                        max="2024"
+                        class="filter-input"
+                    >
+                </div>
+                
+                <!-- Rating filter -->
+                <div class="facet-group">
+                    <h4>Minimum Rating</h4>
+                    <select name="rating_min" class="filter-select" onchange="document.getElementById('filter-form').submit()">
+                        <option value="">Any rating</option>
+                        <option value="7.0" {% if rating_min == '7.0' %}selected{% endif %}>7.0+</option>
+                        <option value="8.0" {% if rating_min == '8.0' %}selected{% endif %}>8.0+</option>
+                        <option value="9.0" {% if rating_min == '9.0' %}selected{% endif %}>9.0+</option>
+                    </select>
+                </div>
+                
+                <!-- Sort order -->
+                <div class="facet-group">
+                    <h4>Sort By</h4>
+                    <select name="sort" class="filter-select" onchange="document.getElementById('filter-form').submit()">
+                        <option value="" {% if not sort %}selected{% endif %}>Relevance</option>
+                        <option value="rating desc" {% if sort == 'rating desc' %}selected{% endif %}>Rating ↓</option>
+                        <option value="rating asc" {% if sort == 'rating asc' %}selected{% endif %}>Rating ↑</option>
+                        <option value="year desc" {% if sort == 'year desc' %}selected{% endif %}>Year ↓</option>
+                        <option value="year asc" {% if sort == 'year asc' %}selected{% endif %}>Year ↑</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-filter">Apply Filters</button>
+                <a href="{{ url_for('search', q=query) }}" class="btn-clear">Clear All</a>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main results area -->
+    <div class="main-results">
+        {% if results %}
+        <div class="results-list">
+            {% for movie in results %}
+            <div class="movie-card" data-movie-id="{{ movie.id }}" data-poster-url="{{ movie.poster }}">
+                <div class="movie-main">
+                    
+                    <div class="movie-poster">
+                        <img src="{{ movie.poster }}" alt="Poster for {{ movie.title }}" loading="lazy" onerror="handleMissingImage(this)">
+                    </div>
+                    
+                    <div class="movie-content">
+                        <div class="movie-header">
+                            <h2 class="movie-title">
+                                <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" style="text-decoration: none; color: inherit;">
+                                    {{ movie.title }}
+                                </a>
+                                {% if movie.year %}
+                                <span class="movie-year">({{ movie.year }})</span>
+                                {% endif %}
+                            </h2>
+                            {% if movie.rating %}
+                            <div class="movie-rating">
+                                ⭐ {{ "%.1f"|format(movie.rating) }}/10
+                            </div>
+                            {% endif %}
+                            {% if movie.tomatometer %}
+                            <div class="movie-rating" style="margin-left: 10px;">
+                                🍅 {{ movie.tomatometer }}%
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="movie-meta">
+                            {% if movie.genres %}
+                            <div class="movie-genres">
+                                {% for genre in movie.genres[:5] %}
+                                <span class="genre-tag">{{ genre }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if movie.directors %}
+                            <p class="movie-directors">
+                                <strong>Director:</strong> {{ movie.directors | join_with_comma }}
+                            </p>
+                            {% endif %}
+                            {% if movie.cast %}
+                            <p class="movie-cast">
+                                <strong>Cast:</strong> {{ movie.cast[:5] | join_with_comma }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if movie.snippet %}
+                        <div class="movie-snippet">
+                            {{ movie.snippet | safe }}
+                        </div>
+                        {% endif %}
+                        <div class="movie-actions">
+                            <a href="{{ movie.url }}" target="_blank" class="btn-secondary">
+                                View on {{ movie.site | capitalize }}
+                            </a>
+                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="btn-primary">
+                                View Details & Similar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if page > 1 %}
+            <a href="{{ url_for('search', q=query, page=page-1, genres=selected_genres, year_min=year_min, year_max=year_max, rating_min=rating_min, sort=sort) }}" class="page-link">
+                ← Previous
+            </a>
+            {% endif %}
+            
+            <span class="page-info">
+                Page {{ page }} of {{ total_pages }}
+            </span>
+            
+            {% if page < total_pages %}
+            <a href="{{ url_for('search', q=query, page=page+1, genres=selected_genres, year_min=year_min, year_max=year_max, rating_min=rating_min, sort=sort) }}" class="page-link">
+                Next →
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="no-results">
+            <p>No movies found matching your criteria.</p>
+            <a href="{{ url_for('index') }}" class="btn-primary">Try a new search</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

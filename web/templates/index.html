@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Search Movies{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        overflow: hidden; /* Disable page scroll */
+    }
+    .home-content-box {
+        max-height: 85vh;
+        overflow-y: auto; /* Allow box to scroll if needed */
+    }
+</style>
+<div class="home-content-box">
+    <div class="hero">
+        <div class="cinesearch-logo">
+            <span class="cine">CINE</span>
+            <span class="search">SEARCH</span>
+        </div>
+        <p class="subtitle">Search thousands of movies from multiple sources</p>
+    </div>
+
+    <div class="search-container">
+        <form action="{{ url_for('search') }}" method="get" class="search-form">
+            <div class="search-box-wrapper">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Search movies by title, plot, cast, or director..." 
+                    class="search-input glow-effect"
+                    autofocus
+                >
+                <button type="submit" class="search-button">
+                    🔍 Search
+                </button>
+            </div>
+            
+            <div class="lucky-button-container">
+                <a href="{{ url_for('random_search') }}" class="search-button lucky-btn">
+                    🎲 I'm feeling lucky
+                </a>
+            </div>
+
+            <div class="advanced-search">
+                <details>
+                    <summary>Advanced Filters</summary>
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label>Genres</label>
+                            <div class="checkbox-group">
+                                {% for genre_item in genres[:15] %}
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="genres" value="{{ genre_item.value }}">
+                                    {{ genre_item.value }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label>Year Range</label>
+                            <div class="range-inputs">
+                                <input type="number" name="year_min" placeholder="Min" min="1900" max="2024">
+                                <span>-</span>
+                                <input type="number" name="year_max" placeholder="Max" min="1900" max="2024">
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label>Min Rating</label>
+                            <select name="rating_min">
+                                <option value="">Any</option>
+                                <option value="7.0">7.0+</option>
+                                <option value="8.0">8.0+</option>
+                                <option value="9.0">9.0+</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label>Sort By</label>
+                            <select name="sort">
+                                <option value="">Relevance</option>
+                                <option value="rating desc">Rating ↓</option>
+                                <option value="rating asc">Rating ↑</option>
+                                <option value="year desc">Year ↓</option>
+                                <option value="year asc">Year ↑</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

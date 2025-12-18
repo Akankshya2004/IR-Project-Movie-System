@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ Managed Schema for Movie Information Retrieval System
+ This schema defines the structure for movie documents in Solr
+-->
+<schema name="movies-schema" version="1.6">
+
+  <!-- FIELD TYPES -->
+  
+  <!-- String type: exact matching, no tokenization -->
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
+  
+  <!-- Integer type -->
+  <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+  
+  <!-- Float type for ratings -->
+  <fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+  
+  <!-- Text type for full-text search with standard analysis -->
+  <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+      <filter class="solr.PorterStemFilterFactory"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+      <filter class="solr.PorterStemFilterFactory"/>
+    </analyzer>
+  </fieldType>
+  
+  <!-- Text type for titles (less aggressive stemming) -->
+  <fieldType name="text_title" class="solr.TextField" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+    </analyzer>
+  </fieldType>
+
+  <!-- FIELDS -->
+  
+  <!-- Unique identifier -->
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+  
+  <!-- Movie metadata -->
+  <field name="title" type="text_title" indexed="true" stored="true" />
+  <field name="year" type="pint" indexed="true" stored="true" />
+  <field name="genres" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="directors" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="cast" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="site" type="string" indexed="true" stored="true" />
+  <field name="rating" type="pfloat" indexed="true" stored="true" />
+  <field name="num_reviews" type="pint" indexed="true" stored="true" />
+  <!-- Poster URL -->
+  <field name="poster" type="string" indexed="true" stored="true" />
+  
+  <!-- Text content -->
+  <field name="plot" type="text_general" indexed="true" stored="true" />
+  <field name="reviews" type="text_general" indexed="true" stored="true" />
+  <field name="url" type="string" indexed="false" stored="true" />
+  
+  <!-- Combined text field for main search and MoreLikeThis -->
+  <field name="text" type="text_general" indexed="true" stored="false" multiValued="true" />
+  
+  <!-- Internal Solr fields -->
+  <field name="_version_" type="long" indexed="false" stored="false"/>
+  <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
+  <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+  <!-- Copy fields to create the main searchable text field -->
+  <copyField source="title" dest="text"/>
+  <copyField source="plot" dest="text"/>
+  <copyField source="reviews" dest="text"/>
+  <copyField source="genres" dest="text"/>
+  <copyField source="directors" dest="text"/>
+  <copyField source="cast" dest="text"/>
+  
+  <!-- Copy fields for catch-all search -->
+  <copyField source="*" dest="_text_"/>
+
+  <!-- Unique key -->
+  <uniqueKey>id</uniqueKey>
+
+</schema>
